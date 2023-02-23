@@ -10,7 +10,8 @@ for file in files:
     split_name_lst = only_name.split("-")
     list_of_names_lst.append(split_name_lst)
 
-sorted(list_of_names_lst, key=lambda x: (x[1], x[0]))
+list_of_names_lst = sorted(list_of_names_lst, key=lambda x: (int(x[1]), int(x[0])))
+
 i = 0
 for name in list_of_names_lst:
     i += 1
