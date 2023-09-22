@@ -14,6 +14,8 @@ attachment_symbol = "english"
 code_pattern = r'CODE:\s+(\w+)'
 valid_until_pattern = r'Valid until:\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
 amount_pattern = r'₪\s+([\d.]+)'
+counter = 0
+earnings = 0
 
 
 def connect_to_outlook():
@@ -41,14 +43,18 @@ def handle_attachments(item):
             with open(pdf_path, "rb") as pdf_file:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
                 text = extract_text(pdf_reader)
-                handle_code(text)
-            os.remove(pdf_path)
+                success = handle_code(text)
+                global counter
+                counter += 1
+            if success:
+                os.remove(pdf_path)
+    return success
 
 
 def handle_mails(folder_name):
     for item in folder_name.Items:
-        handle_attachments(item)
-        if delete_mail:
+        success = handle_attachments(item)
+        if delete_mail and success:
             item.Delete()
 
 
@@ -60,11 +66,16 @@ def extract_text(pdf_reader):
 
 
 def write_to_file(code, valid_until, amount):
-    with open(file_path, 'a') as file:
-        file.write(f"Amount: {amount}₪\n")
-        file.write(f"Code: {code}\n")
-        file.write(f"Valid until: {valid_until}\n")
-        file.write("-" * 26 + "\n")
+    with open(file_path, 'a', encoding='utf-8') as file:
+        try:
+            file.write(f"Amount: {amount}₪\n")
+            file.write(f"Code: {code}\n")
+            file.write(f"Valid until: {valid_until}\n")
+            file.write("-" * 26 + "\n")
+        except Exception as e:
+            print_error(e)
+            if not printing:
+                print_values_blue(code, valid_until, amount)
 
 
 def handle_code(text):
@@ -74,6 +85,8 @@ def handle_code(text):
 
     if amount_match:
         amount = amount_match.group(1)
+        global earnings
+        earnings += float(amount)
     else:
         amount = "Amount not found"
 
@@ -83,22 +96,42 @@ def handle_code(text):
         code = "Code not found"
 
     if valid_until_match:
-        valid_until = valid_until_match.group(1)
+        valid_until = valid_until_match.group(1).replace(',', '')
     else:
         valid_until = "Valid until date not found"
 
     if output_file:
         write_to_file(code, valid_until, amount)
     if printing:
-        print("\033[94m" + "Amount =", amount, "Code =", code, "Valid =", valid_until, end="\n")
+        print_values_blue(code, valid_until, amount)
+
+    return True
+
+
+def print_values_blue(code, valid_until, amount):
+    print("\033[94m" + "Amount =", amount + "₪,", "Code =", code + ",", "Valid =", valid_until, end="\n")
+
+
+def print_error(e):
+    print("\033[91m" + "Error Happened:", str(e) + '\033[0m')
+
+
+def print_green(s, to_add):
+    print('\033[92m' + s, to_add)
 
 
 def run():
-    inbox = connect_to_outlook()
-    iterate_mailbox(inbox)
-    global outlook
-    if outlook:
-        del outlook
+    try:
+        inbox = connect_to_outlook()
+        iterate_mailbox(inbox)
+        global outlook
+        if outlook:
+            del outlook
+        if printing:
+            print_green(str(counter), "Mails handled")
+            print_green(str(earnings) + "₪", "Earnings")
+    except Exception as e:
+        print_error(e)
 
 
 run()
