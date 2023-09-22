@@ -8,11 +8,12 @@ sub_folder_name = "Wolt"
 output_file = True
 file_path = "C:\\Users\\t-shamawie\\Downloads\\Wolt Codes.txt"
 printing = True
-delete_mail = False
+delete_mail = True
 save_pdf_path = "C:\\Users\\t-shamawie\\Downloads"
 attachment_symbol = "english"
 code_pattern = r'CODE:\s+(\w+)'
 valid_until_pattern = r'Valid until:\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})'
+amount_pattern = r'₪\s+([\d.]+)'
 
 
 def connect_to_outlook():
@@ -58,8 +59,9 @@ def extract_text(pdf_reader):
         return text
 
 
-def write_to_file(code, valid_until):
+def write_to_file(code, valid_until, amount):
     with open(file_path, 'a') as file:
+        file.write(f"Amount: {amount}₪\n")
         file.write(f"Code: {code}\n")
         file.write(f"Valid until: {valid_until}\n")
         file.write("-" * 26 + "\n")
@@ -68,6 +70,12 @@ def write_to_file(code, valid_until):
 def handle_code(text):
     code_match = re.search(code_pattern, text)
     valid_until_match = re.search(valid_until_pattern, text)
+    amount_match = re.search(amount_pattern, text)
+
+    if amount_match:
+        amount = amount_match.group(1)
+    else:
+        amount = "Amount not found"
 
     if code_match:
         code = code_match.group(1)
@@ -80,9 +88,9 @@ def handle_code(text):
         valid_until = "Valid until date not found"
 
     if output_file:
-        write_to_file(code, valid_until)
+        write_to_file(code, valid_until, amount)
     if printing:
-        print("\033[94m" + "Code =", code, "Valid =", valid_until, end="")
+        print("\033[94m" + "Amount =", amount, "Code =", code, "Valid =", valid_until, end="\n")
 
 
 def run():
