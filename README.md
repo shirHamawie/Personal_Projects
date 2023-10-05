@@ -4,7 +4,7 @@
 
 The Outlook Gift Card Finder is a Python script designed to streamline the process of searching for and extracting gift card information from emails in your local Outlook folder. Specifically, it focuses on identifying gift card emails sent by "Wolt." The script extracts essential details, such as the gift card code and its validation date, making it easier for users to access and use their gift cards.
 
-<img src="https://github.com/shirHamawie/Personal_Projects/assets/93772012/7721cc9b-301d-48d0-82b3-8cc013524fbf" alt="Screenshot" width="400">
+<img src="https://github.com/shirHamawie/Personal_Projects/assets/93772012/7721cc9b-301d-48d0-82b3-8cc013524fbf" alt="Screenshot" width="300">
 
 <img src="https://github.com/shirHamawie/Personal_Projects/assets/93772012/119f006d-5788-4bac-8406-3b50ae43f102" alt="Screenshot" width="350">
 
