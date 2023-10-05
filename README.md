@@ -8,6 +8,9 @@ The Outlook Gift Card Finder is a Python script designed to streamline the proce
 
 ![Screenshot 2023-10-05 162856](https://github.com/shirHamawie/Personal_Projects/assets/93772012/119f006d-5788-4bac-8406-3b50ae43f102)
 
+<img src="https://github.com/shirHamawie/Personal_Projects/assets/93772012/7721cc9b-301d-48d0-82b3-8cc013524fbf" alt="Screenshot" width="300">
+
+
 
 ## Files Sort Script
 The Video File Sorter is a Python script designed to simplify the organization of video files by sorting them based on their filenames, which typically include date information. This script automates the process of rearranging video files in a folder, making it easier to manage and access your video content chronologically.
