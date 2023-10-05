@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import PyPDF2
 import re
 import os
+import tkinter as tk
+from tkinter import messagebox
 
 outlook = None
 sub_folder_name = "Wolt"
@@ -134,8 +136,8 @@ def print_green(s, to_add):
     print('\033[92m' + s, to_add)
 
 
-def print_pink(to_print):
-    print('\033[95m', to_print)
+def print_pink(to_print, end='\n'):
+    print('\033[95m', to_print, end=end)
 
 
 def handled_dates():
@@ -172,31 +174,133 @@ def manipulate_dates():
             dates_in_past_30_days.remove(date)
 
 
+def generate_date_list(month):
+    today = datetime.now()
+
+    first_day_of_month = today.replace(month=month, day=1)
+    days_to_sunday = (first_day_of_month.weekday() - 6) % 7
+
+    last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    first_day_of_month -= timedelta(days=days_to_sunday)
+
+    date_list = [first_day_of_month + timedelta(days=i) for i in
+                 range((last_day_of_month - first_day_of_month).days + 1)]
+
+    date_list = [date.strftime('%b %d %Y') for date in date_list]
+
+    date_objects = [datetime.strptime(date, '%b %d %Y') for date in date_list]
+
+    return date_list, date_objects
+
+
+def print_calender(month):
+    global dates_in_past_30_days
+
+    today = datetime.now()
+
+    date_list, date_objects = generate_date_list(month)
+
+    print_pink("\t\t" + "--- " + datetime.strptime(str(month), '%m').strftime('%B') + " ---")
+    print_pink('Sun  Mon  Tue  Wed  Thu  Fri  Sat')
+
+    for i in range(len(date_list)):
+        date = date_list[i]
+        date_obj = date_objects[i]
+        day = date_obj.strftime('%d')
+
+        if today - date_obj > timedelta(days=30):
+            print_pink(' P  ', end='')
+        elif date in dates_in_past_30_days:
+            print_pink(' X  ', end='')
+        else:
+            if datetime.strptime(date, '%b %d %Y').month != month:
+                print_pink('    ', end='')
+            elif date_obj > today:
+                print_pink(' A  ', end='')
+            elif date_obj.strftime('%A') == 'Saturday' or date_obj.strftime('%A') == 'Friday':
+                print_pink(' O  ', end='')
+            else:
+                print_pink(f'{day:^4}', end='')
+
+        if date_obj.strftime('%A') == 'Saturday':
+            print()
+
+    print()
+
+
+def generate_month_ago_dates():
+    today = datetime.now()
+    return [today - timedelta(days=i) for i in range(30)]
+
+
+def print_calenders():
+    months_list = set()
+
+    for date in generate_month_ago_dates():
+        months_list.add(date.month)
+
+    months_list = sorted(months_list)
+    for month in months_list:
+        print_calender(month)
+
+
+def alert_popup(add):
+    root = tk.Tk()
+    root.withdraw()
+
+    confirmation = messagebox.askyesnocancel("Confirmation", add + "!\nAre you sure you want to continue?",
+                                             icon=messagebox.WARNING)
+    root.destroy()
+
+    return confirmation
+
+
 def run():
     try:
+        global delete_mail
+        global clean_file
+        global output_file
+        global outlook
+
+        if delete_mail:
+            delete = alert_popup("You are about to delete the mails")
+            if delete is None:
+                exit(1)
+            elif not delete:
+                delete_mail = False
+
         if clean_file:
-            with open(file_path, "w") as _:
-                pass
+            clean = alert_popup("You are about to clean the output file")
+            if clean is None:
+                exit(1)
+            elif not clean:
+                clean_file = False
+            else:
+                with open(file_path, "w") as _:
+                    pass
+
         if output_file:
-            with open(file_path, "a") as file:
-                current_datetime = datetime.now()
-                date_time = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
-                file.write(date_time + "\n")
-                file.write("=" * 26 + "\n")
+            output = alert_popup("You are about to write to the output file")
+            if output is None:
+                exit(1)
+            elif not output:
+                output_file = False
+            else:
+                with open(file_path, "a") as file:
+                    current_datetime = datetime.now()
+                    date_time = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
+                    file.write(date_time + "\n")
+                    file.write("=" * 26 + "\n")
         manipulate_dates()
         inbox = connect_to_outlook()
         iterate_mailbox(inbox)
-        global outlook
         if outlook:
             del outlook
         if printing:
             print_green(str(counter), "Mails handled")
             print_green(str(earnings) + "₪", "Earnings")
-            global dates_in_past_30_days
-            dates_in_past_30_days = reversed(dates_in_past_30_days)
-            formatted_dates = [date + " " + datetime.strptime(date, '%b %d %Y').strftime("%A") for date in dates_in_past_30_days]
-            print_pink("Missing Dates:")
-            print_pink(list(reversed(formatted_dates)))
+            print()
+            print_calenders()
     except Exception as e:
         print_error(e)
 
