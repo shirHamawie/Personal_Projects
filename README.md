@@ -4,6 +4,11 @@
 
 The Outlook Gift Card Finder is a Python script designed to streamline the process of searching for and extracting gift card information from emails in your local Outlook folder. Specifically, it focuses on identifying gift card emails sent by "Wolt." The script extracts essential details, such as the gift card code and its validation date, making it easier for users to access and use their gift cards.
 
+![Screenshot 2023-10-05 161415](https://github.com/shirHamawie/Personal_Projects/assets/93772012/7721cc9b-301d-48d0-82b3-8cc013524fbf)
+
+![Screenshot 2023-10-05 162856](https://github.com/shirHamawie/Personal_Projects/assets/93772012/119f006d-5788-4bac-8406-3b50ae43f102)
+
+
 ## Files Sort Script
 The Video File Sorter is a Python script designed to simplify the organization of video files by sorting them based on their filenames, which typically include date information. This script automates the process of rearranging video files in a folder, making it easier to manage and access your video content chronologically.
 
