@@ -14,7 +14,7 @@ output_file = True
 printing = True
 delete_mail = True
 clean_file = False
-debug_mode = True
+debug_mode = False
 save_pdf_path = "C:\\Users\\t-shamawie\\Downloads"
 attachment_symbol = "english"
 code_pattern = r'CODE:\s+(\w+)'
@@ -42,9 +42,6 @@ def iterate_mailbox(folder):
 
 
 def handle_attachments(item):
-    if item.Attachments.Count == 0:
-        return False
-
     for attachment in item.Attachments:
         attachment_name = attachment.FileName.lower()
 
@@ -68,7 +65,7 @@ def handle_attachments(item):
                 print_error(e)
                 return False
 
-    return False
+    return True
 
 
 def handle_mails(folder_name):
@@ -270,22 +267,27 @@ def print_calenders():
         print_calender(month)
 
 
-def alert_popup(add):
+def get_rootTk():
     root = tk.Tk()
     root.withdraw()
+    return root
 
-    confirmation = messagebox.askyesnocancel("Warning", add + "!\nAre you sure you want to continue?\n "
+
+def alert_popup(add):
+    root = get_rootTk()
+
+    confirmation = messagebox.askyesnocancel("Warning", add + "!\nAre you sure you want to continue?\n"
                                                               "Press 'Yes' to proceed, 'No' to turn the mode off, "
                                                               "or 'Cancel' to exit the program",
                                              icon=messagebox.WARNING)
+
     root.destroy()
 
     return confirmation
 
 
 def debug_alert():
-    root = tk.Tk()
-    root.withdraw()
+    root = get_rootTk()
 
     confirmation = messagebox.askokcancel("Confirmation",
                                           "You are on debug mode!\nOutput file, "
