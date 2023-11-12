@@ -69,10 +69,15 @@ def handle_attachments(item):
 
 
 def handle_mails(folder_name):
+    items_to_delete = []
+
     for item in folder_name.Items:
         success = handle_attachments(item)
         if delete_mail and success:
-            item.Delete()
+            items_to_delete.append(item)
+
+    for item in items_to_delete:
+        item.Delete()
 
 
 def extract_text(pdf_reader):
