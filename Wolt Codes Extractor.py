@@ -59,7 +59,6 @@ def handle_attachments(item):
                     counter += 1
                     pdf_file.close()
                     os.remove(pdf_path)
-                    return True
 
             except Exception as e:
                 print_error(e)
